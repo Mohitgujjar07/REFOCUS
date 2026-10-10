@@ -14,7 +14,12 @@ if (typeof window !== "undefined" && isFirebaseConfigured()) {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
-    storage = getStorage(app);
+
+    try {
+      storage = getStorage(app);
+    } catch {
+      // Storage is optional until progress photo uploads are configured
+    }
 
     // Support for local Firebase Emulator Suite if configured
     if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true") {
@@ -23,9 +28,9 @@ if (typeof window !== "undefined" && isFirebaseConfigured()) {
       const firestorePort = Number(process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT || 8080);
 
       try {
-        connectAuthEmulator(auth, authHost, { disableWarnings: true });
-        connectFirestoreEmulator(db, firestoreHost, firestorePort);
-        connectStorageEmulator(storage, "127.0.0.1", 9199);
+        if (auth) connectAuthEmulator(auth, authHost, { disableWarnings: true });
+        if (db) connectFirestoreEmulator(db, firestoreHost, firestorePort);
+        if (storage) connectStorageEmulator(storage, "127.0.0.1", 9199);
       } catch {
         // Emulator already connected in fast refresh
       }
