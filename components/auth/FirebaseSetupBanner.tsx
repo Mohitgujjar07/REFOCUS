@@ -61,7 +61,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef`;
               and click <strong>Add project</strong> (e.g. <code>refocous-app</code>).
             </li>
             <li>
-              Under <strong>Build &gt; Authentication</strong>, click <em>Get Started</em> and enable <strong>Email/Password</strong> sign-in provider.
+              Under <strong>Build &gt; Authentication</strong>, click <em>Get Started</em> and enable the <strong>Google</strong> sign-in provider.
             </li>
             <li>
               Under <strong>Build &gt; Firestore Database</strong>, click <em>Create Database</em> and choose <strong>Production mode</strong>.

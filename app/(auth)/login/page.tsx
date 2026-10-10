@@ -7,32 +7,25 @@ import { BrandLogo } from "@/components/ui/BrandLogo";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowRight, Lock, Mail, AlertCircle, Info } from "lucide-react";
+import { AlertCircle, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isConfigured } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { signInWithGoogle, isConfigured } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleSignIn = async () => {
     setErrorMessage(null);
-
-    if (!isConfigured) {
-      // Offline / Blueprint demo mode
-      router.push("/today");
-      return;
-    }
-
     setIsLoading(true);
+
     try {
-      await login(email, password);
+      await signInWithGoogle();
       router.push("/today");
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to sign in. Please verify your credentials.");
+      setErrorMessage(
+        err.message || "Failed to sign in with Google. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -44,94 +37,82 @@ export default function LoginPage() {
         <Link href="/today" className="inline-block">
           <BrandLogo size="lg" />
         </Link>
-        <h2 className="mt-4 text-xl font-bold tracking-tight text-content-primary">
-          Sign in to your transformation
+        <h2 className="mt-4 text-2xl font-bold tracking-tight text-content-primary">
+          Welcome to REFOCOUS
         </h2>
-        <p className="mt-1 text-xs text-content-secondary">
-          Track what you actually do, understand your progress, and refocus your daily habits.
+        <p className="mt-1 text-xs text-content-secondary max-w-sm mx-auto">
+          Reset your habits. Rebuild your strength. Refocus your life.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <Card className="border border-border p-6 shadow-sm">
-          <CardContent className="p-0">
-            {!isConfigured && (
-              <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
-                <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong>Local Foundation Mode:</strong> Firebase is currently running without <code>.env.local</code> credentials. You can click <strong>Sign In</strong> to enter the application immediately.
-                </div>
-              </div>
-            )}
+        <Card className="border border-border p-8 shadow-sm">
+          <CardContent className="p-0 space-y-6">
+            <div className="text-center space-y-1.5">
+              <h3 className="text-base font-semibold text-content-primary">
+                Sign in with your Google Account
+              </h3>
+              <p className="text-xs text-content-secondary leading-relaxed">
+                Passwordless and secure. One click connects your daily nutrition, training, and progress records.
+              </p>
+            </div>
 
             {errorMessage && (
-              <div className="mb-4 p-3 rounded-lg bg-status-errorBg border border-status-error/20 text-status-error text-xs flex items-start gap-2">
+              <div className="p-3 rounded-lg bg-status-errorBg border border-status-error/20 text-status-error text-xs flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-content-secondary mb-1">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-content-tertiary absolute left-3 top-2.5" />
-                  <input
-                    type="email"
-                    required={isConfigured}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-border bg-card text-content-primary focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                    placeholder="founder@refocous.app"
-                  />
-                </div>
-              </div>
+            {/* Google Sign-in Button */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-border rounded-xl bg-card hover:bg-surface-subtle transition-all duration-200 text-content-primary font-medium text-sm shadow-sm hover:shadow hover:border-primary/40 disabled:opacity-60 disabled:cursor-not-allowed group"
+            >
+              {/* Google 4-color SVG Logo */}
+              <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>{isLoading ? "Signing in..." : "Continue with Google"}</span>
+            </button>
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-content-secondary">
-                    Password
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs text-primary hover:underline font-medium"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-content-tertiary absolute left-3 top-2.5" />
-                  <input
-                    type="password"
-                    required={isConfigured}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-border bg-card text-content-primary focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
-                    placeholder="••••••••••••"
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                isLoading={isLoading}
-                className="w-full mt-2"
-              >
-                Sign In
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-            </form>
-
-            <div className="mt-6 pt-4 border-t border-border text-center text-xs text-content-secondary">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-semibold text-primary hover:underline">
-                Create Account
-              </Link>
+            {/* Privacy & Security Note */}
+            <div className="pt-2 flex items-center justify-center gap-1.5 text-[11px] text-content-tertiary">
+              <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+              <span>No separate password required. Your data is isolated and encrypted.</span>
             </div>
+
+            {/* Offline / Preview Mode direct bypass */}
+            {!isConfigured && (
+              <div className="pt-4 border-t border-border">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push("/today")}
+                  className="w-full text-xs"
+                >
+                  Explore Founder Blueprint Demo
+                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

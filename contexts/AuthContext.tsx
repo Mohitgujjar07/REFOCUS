@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   User,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -23,6 +25,7 @@ interface AuthContextType {
   isLoading: boolean;
   isConfigured: boolean;
   error: string | null;
+  signInWithGoogle: () => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -40,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
   const isConfigured = isFirebaseConfigured();
 
-  // Load user profile from Firestore or fallback
+  // Load user profile from Firestore or provision baseline
   const fetchProfile = async (uid: string, fallbackEmail?: string, fallbackName?: string) => {
     try {
       let p = await ProfileRepository.getUserProfile(uid);
@@ -82,6 +85,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => unsubscribe();
   }, [isConfigured]);
+
+  const signInWithGoogle = async () => {
+    setError(null);
+    if (!isConfigured || !auth) {
+      // In demo/blueprint mode, allow entry with founder profile
+      setProfile(FOUNDER_INITIAL_PROFILE);
+      return;
+    }
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      const cred = await signInWithPopup(auth, provider);
+      await fetchProfile(
+        cred.user.uid,
+        cred.user.email || undefined,
+        cred.user.displayName || undefined
+      );
+    } catch (err: any) {
+      if (err.code === "auth/popup-closed-by-user") {
+        return;
+      }
+      const msg = getFriendlyFirebaseErrorMessage(err);
+      setError(msg);
+      throw new Error(msg);
+    }
+  };
 
   const login = async (email: string, pass: string) => {
     setError(null);
@@ -160,6 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         isConfigured,
         error,
+        signInWithGoogle,
         login,
         register,
         logout,

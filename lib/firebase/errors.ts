@@ -9,10 +9,16 @@ export function getFriendlyFirebaseErrorMessage(error: any): string {
       return "An account with this email address already exists. Please sign in instead.";
     case "auth/invalid-email":
       return "Please provide a valid email address.";
+    case "auth/popup-closed-by-user":
+      return "Google Sign-In was closed before completing. Please try again.";
+    case "auth/popup-blocked":
+      return "The Google sign-in popup was blocked by your browser. Please allow popups for this site.";
+    case "auth/unauthorized-domain":
+      return "This domain is not yet authorized in Firebase Console. Go to Authentication > Settings > Authorized domains and add this host.";
     case "auth/operation-not-allowed":
-      return "Email/Password sign-in is not enabled in the Firebase Console.";
-    case "auth/weak-password":
-      return "Password is too weak. Please use at least 6 characters with letters and numbers.";
+      return "Google sign-in is not enabled. Go to Firebase Console > Authentication > Sign-in method and enable Google.";
+    case "auth/account-exists-with-different-credential":
+      return "An account already exists with this email under a different sign-in method.";
     case "auth/user-disabled":
       return "This account has been disabled. Please contact support.";
     case "auth/user-not-found":
