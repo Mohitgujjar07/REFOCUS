@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Public verified catalog items (Read-only for authenticated users)
+    match /foodItems/{foodId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admin service accounts or migrations
+    }
+
+    match /exerciseCatalog/{exerciseId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // Isolated user-specific data hierarchy
+    match /users/{userId} {
+      // User profile document
+      allow read, write: if isOwner(userId);
+
+      // Subcollections
+      match /goals/{goalId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /bodyLogs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /foodLogs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /workoutPlans/{planId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /workoutSessions/{sessionId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /dailyLogs/{date} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /habits/{habitId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /habitCheckins/{checkinId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /weeklyReviews/{reviewId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /reports/{reportId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+  }
+}
