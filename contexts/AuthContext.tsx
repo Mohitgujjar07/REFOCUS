@@ -69,21 +69,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      if (firebaseUser) {
-        await fetchProfile(
-          firebaseUser.uid,
-          firebaseUser.email || undefined,
-          firebaseUser.displayName || undefined
-        );
-      } else {
-        setProfile(null);
-      }
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = onAuthStateChanged(
+        auth,
+        async (firebaseUser) => {
+          setUser(firebaseUser);
+          if (firebaseUser) {
+            await fetchProfile(
+              firebaseUser.uid,
+              firebaseUser.email || undefined,
+              firebaseUser.displayName || undefined
+            );
+          } else {
+            setProfile(null);
+          }
+          setIsLoading(false);
+        },
+        (authErr) => {
+          console.warn("Firebase Auth observer caught error:", authErr);
+          setIsLoading(false);
+        }
+      );
+    } catch (err) {
+      console.warn("Failed to attach auth observer:", err);
       setIsLoading(false);
-    });
+    }
 
-    return () => unsubscribe();
+    return () => {
+      try {
+        unsubscribe();
+      } catch {
+        // Safe cleanup
+      }
+    };
   }, [isConfigured]);
 
   const signInWithGoogle = async () => {

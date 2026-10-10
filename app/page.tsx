@@ -3,13 +3,20 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function HomePage() {
   const router = useRouter();
+  const { user, isLoading, isConfigured } = useAuth();
 
   useEffect(() => {
-    router.replace("/today");
-  }, [router]);
+    if (isLoading) return;
+    if (isConfigured && !user) {
+      router.replace("/login");
+    } else {
+      router.replace("/today");
+    }
+  }, [user, isLoading, isConfigured, router]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
